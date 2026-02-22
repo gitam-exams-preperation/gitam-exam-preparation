@@ -1,254 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GITAM Student Portal</title>
+<title>CSE AIML</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Segoe UI',sans-serif;
-}
-
 body{
-height:100vh;
-background:linear-gradient(135deg,#141e30,#243b55);
+margin:0;
+font-family:'Segoe UI';
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
 display:flex;
 justify-content:center;
-align-items:center;
-color:white;
+padding:40px 0;
+}
+
+.container{
+width:420px;
+background:rgba(255,255,255,0.08);
+border-radius:20px;
+padding:30px;
+backdrop-filter:blur(15px);
+box-shadow:0 15px 40px rgba(0,0,0,0.5);
+}
+
+h2{
+text-align:center;
+margin-bottom:25px;
 }
 
 .card{
-width:380px;
-height:600px;
-background:rgba(255,255,255,0.08);
-backdrop-filter:blur(15px);
-border-radius:25px;
-box-shadow:0 20px 50px rgba(0,0,0,0.4);
-display:flex;
-flex-direction:column;
-overflow:hidden;
+background:rgba(255,255,255,0.15);
+padding:18px;
+border-radius:12px;
+margin-bottom:15px;
+cursor:pointer;
+transition:0.3s;
 }
 
-/* CONTENT */
-.content{
-flex:1;
-padding:30px;
-overflow-y:auto;
+.card:hover{
+background:rgba(255,255,255,0.25);
+transform:translateY(-3px);
+}
+
+.card h3{
+margin:0;
+font-size:18px;
+}
+
+.footer{
+margin-top:20px;
 text-align:center;
 }
 
-/* LOGIN */
-input{
-width:100%;
-padding:12px;
-margin:12px 0;
-border:none;
-border-radius:8px;
-outline:none;
-}
-
-button{
-width:100%;
-padding:12px;
-margin-top:12px;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-transition:0.3s;
-}
-
-.primary{
-background:linear-gradient(to right,#00c6ff,#0072ff);
-color:white;
-}
-
-.primary:hover{
-transform:scale(1.05);
-}
-
-/* COURSE GRID */
-.course-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:20px;
-}
-
-.course-card{
-background:rgba(255,255,255,0.12);
-padding:20px;
-border-radius:15px;
-cursor:pointer;
-transition:0.3s;
-}
-
-.course-card:hover{
-background:#00c6ff;
-color:black;
-}
-
-/* CATEGORY */
-.category{
-margin-top:25px;
-text-align:left;
-}
-
-.category h4{
-margin-bottom:10px;
-}
-
-/* BOTTOM NAV */
-.bottom-nav{
-height:60px;
-background:rgba(0,0,0,0.3);
-display:flex;
-justify-content:space-around;
-align-items:center;
-}
-
-.nav-btn{
-cursor:pointer;
+.footer a{
+color:#00c6ff;
+text-decoration:none;
 font-weight:bold;
 }
-
-/* HIDDEN */
-#dashboard,
-#profile{
-display:none;
-}
-
-.logout-btn{
-background:linear-gradient(to right,#ff416c,#ff4b2b);
-color:white;
-}
-
 </style>
 </head>
 <body>
 
+<div class="container">
+<h2>CSE AIML</h2>
+
 <div class="card">
-
-<div class="content" id="authBox">
-<h2>🎓 GITAM Login</h2>
-<input type="email" id="email" placeholder="Enter Email">
-<input type="password" id="password" placeholder="Enter Password">
-<button class="primary" onclick="login()">Login</button>
+<h3>📘 Topics & Weightage</h3>
 </div>
 
-<div class="content" id="dashboard">
-<h2>Welcome</h2>
-<p id="userEmail"></p>
-
-<div class="category">
-<h4>Courses</h4>
-<div class="course-grid">
-<div class="course-card" onclick="openCourse('aiml')">CSE AIML</div>
-<div class="course-card" onclick="openCourse('ds')">CSE DS</div>
-<div class="course-card" onclick="openCourse('core')">CSE CORE</div>
-<div class="course-card" onclick="openCourse('cs')">CSE CS</div>
-</div>
+<div class="card">
+<h3>📝 Model Papers</h3>
 </div>
 
-<div class="category">
-<h4>Categories</h4>
-<p>📚 Notes</p>
-<p>📝 Assignments</p>
-<p>🎥 Lectures</p>
-<p>🧪 Lab Materials</p>
+<div class="card">
+<h3>📂 Previous Papers</h3>
+</div>
+
+<div class="card">
+<h3>⭐ Important Questions</h3>
+</div>
+
+<div class="card">
+<h3>📊 Assessment Questions</h3>
+</div>
+
+<div class="footer">
+<a href="index.html">⬅ Back to Home</a>
 </div>
 
 </div>
-
-<div class="content" id="profile">
-<h2>Profile</h2>
-<p id="profileEmail"></p>
-
-<input type="password" id="newPassword" placeholder="New Password">
-<button class="primary" onclick="changePassword()">Change Password</button>
-
-<button class="logout-btn" onclick="logout()">Logout</button>
-</div>
-
-<div class="bottom-nav" id="navBar" style="display:none;">
-<div class="nav-btn" onclick="showHome()">Home</div>
-<div class="nav-btn" onclick="showProfile()">Profile</div>
-</div>
-
-</div>
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import {
-getAuth,
-signInWithEmailAndPassword,
-signOut,
-onAuthStateChanged,
-updatePassword
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-
-const firebaseConfig = {
-apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
-authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
-projectId: "gitam-exam-preparation-3b83a",
-storageBucket: "gitam-exam-preparation-3b83a.firebasestorage.app",
-messagingSenderId: "202789647566",
-appId: "1:202789647566:web:3b50bf86bca712cb660c9f"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-window.login = async ()=>{
-try{
-await signInWithEmailAndPassword(auth,email.value,password.value);
-}catch(e){alert(e.message);}
-}
-
-window.logout = ()=>signOut(auth);
-
-window.changePassword = async ()=>{
-try{
-await updatePassword(auth.currentUser,newPassword.value);
-alert("Password Updated!");
-}catch(e){alert(e.message);}
-}
-
-window.showHome = ()=>{
-dashboard.style.display="block";
-profile.style.display="none";
-}
-
-window.showProfile = ()=>{
-dashboard.style.display="none";
-profile.style.display="block";
-}
-
-window.openCourse = (course)=>{
-window.location.href = course + ".html";
-}
-
-onAuthStateChanged(auth,(user)=>{
-if(user){
-authBox.style.display="none";
-dashboard.style.display="block";
-navBar.style.display="flex";
-userEmail.innerText=user.email;
-profileEmail.innerText=user.email;
-}else{
-authBox.style.display="block";
-dashboard.style.display="none";
-profile.style.display="none";
-navBar.style.display="none";
-}
-});
-
-</script>
 
 </body>
 </html>

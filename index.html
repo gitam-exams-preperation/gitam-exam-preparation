@@ -14,62 +14,61 @@ font-family:'Segoe UI',sans-serif;
 
 body{
 height:100vh;
+background:linear-gradient(135deg,#141e30,#243b55);
 display:flex;
 justify-content:center;
 align-items:center;
-background:linear-gradient(135deg,#141e30,#243b55);
 color:white;
 }
 
-/* CARD */
 .card{
 width:380px;
+height:600px;
 background:rgba(255,255,255,0.08);
 backdrop-filter:blur(15px);
-padding:40px;
-border-radius:20px;
+border-radius:25px;
 box-shadow:0 20px 50px rgba(0,0,0,0.4);
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+/* CONTENT */
+.content{
+flex:1;
+padding:30px;
+overflow-y:auto;
 text-align:center;
 }
 
-/* TITLE */
-h2{
-margin-bottom:20px;
-font-weight:600;
-}
-
-/* INPUT */
+/* LOGIN */
 input{
 width:100%;
 padding:12px;
-margin:10px 0;
+margin:12px 0;
 border:none;
 border-radius:8px;
 outline:none;
-font-size:14px;
 }
 
-/* BUTTON */
 button{
 width:100%;
 padding:12px;
 margin-top:12px;
 border:none;
 border-radius:8px;
-background:linear-gradient(to right,#00c6ff,#0072ff);
-color:white;
 font-weight:bold;
 cursor:pointer;
 transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.05);
+.primary{
+background:linear-gradient(to right,#00c6ff,#0072ff);
+color:white;
 }
 
-/* DASHBOARD */
-#dashboard{
-display:none;
+.primary:hover{
+transform:scale(1.05);
 }
 
 /* COURSE GRID */
@@ -81,9 +80,9 @@ margin-top:20px;
 }
 
 .course-card{
-background:rgba(255,255,255,0.1);
-padding:15px;
-border-radius:12px;
+background:rgba(255,255,255,0.12);
+padding:20px;
+border-radius:15px;
 cursor:pointer;
 transition:0.3s;
 }
@@ -93,38 +92,93 @@ background:#00c6ff;
 color:black;
 }
 
-.logout{
+/* CATEGORY */
+.category{
+margin-top:25px;
+text-align:left;
+}
+
+.category h4{
+margin-bottom:10px;
+}
+
+/* BOTTOM NAV */
+.bottom-nav{
+height:60px;
+background:rgba(0,0,0,0.3);
+display:flex;
+justify-content:space-around;
+align-items:center;
+}
+
+.nav-btn{
+cursor:pointer;
+font-weight:bold;
+}
+
+/* HIDDEN */
+#dashboard,
+#profile{
+display:none;
+}
+
+.logout-btn{
 background:linear-gradient(to right,#ff416c,#ff4b2b);
-margin-top:20px;
+color:white;
 }
 
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="card" id="authBox">
-<h2>🎓 GITAM Student Login</h2>
+<div class="card">
 
+<div class="content" id="authBox">
+<h2>🎓 GITAM Login</h2>
 <input type="email" id="email" placeholder="Enter Email">
 <input type="password" id="password" placeholder="Enter Password">
-
-<button onclick="login()">Login</button>
+<button class="primary" onclick="login()">Login</button>
 </div>
 
-<!-- DASHBOARD -->
-<div class="card" id="dashboard">
-<h2>Welcome to GITAM Courses</h2>
+<div class="content" id="dashboard">
+<h2>Welcome</h2>
 <p id="userEmail"></p>
 
+<div class="category">
+<h4>Courses</h4>
 <div class="course-grid">
 <div class="course-card" onclick="openCourse('aiml')">CSE AIML</div>
 <div class="course-card" onclick="openCourse('ds')">CSE DS</div>
 <div class="course-card" onclick="openCourse('core')">CSE CORE</div>
 <div class="course-card" onclick="openCourse('cs')">CSE CS</div>
 </div>
+</div>
 
-<button class="logout" onclick="logout()">Logout</button>
+<div class="category">
+<h4>Categories</h4>
+<p>📚 Notes</p>
+<p>📝 Assignments</p>
+<p>🎥 Lectures</p>
+<p>🧪 Lab Materials</p>
+</div>
+
+</div>
+
+<div class="content" id="profile">
+<h2>Profile</h2>
+<p id="profileEmail"></p>
+
+<input type="password" id="newPassword" placeholder="New Password">
+<button class="primary" onclick="changePassword()">Change Password</button>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="bottom-nav" id="navBar" style="display:none;">
+<div class="nav-btn" onclick="showHome()">Home</div>
+<div class="nav-btn" onclick="showProfile()">Profile</div>
+</div>
+
 </div>
 
 <script type="module">
@@ -134,10 +188,10 @@ import {
 getAuth,
 signInWithEmailAndPassword,
 signOut,
-onAuthStateChanged
+onAuthStateChanged,
+updatePassword
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/* YOUR FIREBASE CONFIG */
 const firebaseConfig = {
 apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
 authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
@@ -150,37 +204,49 @@ appId: "1:202789647566:web:3b50bf86bca712cb660c9f"
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* LOGIN */
 window.login = async ()=>{
-const email=document.getElementById("email").value;
-const password=document.getElementById("password").value;
-
 try{
-await signInWithEmailAndPassword(auth,email,password);
-}catch(error){
-alert(error.message);
-}
+await signInWithEmailAndPassword(auth,email.value,password.value);
+}catch(e){alert(e.message);}
 }
 
-/* LOGOUT */
 window.logout = ()=>signOut(auth);
 
-/* AUTH CHECK */
+window.changePassword = async ()=>{
+try{
+await updatePassword(auth.currentUser,newPassword.value);
+alert("Password Updated!");
+}catch(e){alert(e.message);}
+}
+
+window.showHome = ()=>{
+dashboard.style.display="block";
+profile.style.display="none";
+}
+
+window.showProfile = ()=>{
+dashboard.style.display="none";
+profile.style.display="block";
+}
+
+window.openCourse = (course)=>{
+window.location.href = course + ".html";
+}
+
 onAuthStateChanged(auth,(user)=>{
 if(user){
 authBox.style.display="none";
 dashboard.style.display="block";
+navBar.style.display="flex";
 userEmail.innerText=user.email;
+profileEmail.innerText=user.email;
 }else{
 authBox.style.display="block";
 dashboard.style.display="none";
+profile.style.display="none";
+navBar.style.display="none";
 }
 });
-
-/* OPEN COURSE */
-window.openCourse = (course)=>{
-window.location.href = course + ".html";
-}
 
 </script>
 

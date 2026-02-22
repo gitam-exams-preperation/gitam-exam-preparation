@@ -1,189 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GITAM Exam Preparation</title>
+<title>GITAM Student Portal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
+*{
 margin:0;
-font-family:Arial, sans-serif;
-background:#f4f6f9;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
 }
 
-.container{
-max-width:400px;
-margin:80px auto;
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 4px 15px rgba(0,0,0,0.2);
+body{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:linear-gradient(135deg,#141e30,#243b55);
+color:white;
+}
+
+/* CARD */
+.card{
+width:380px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(15px);
+padding:40px;
+border-radius:20px;
+box-shadow:0 20px 50px rgba(0,0,0,0.4);
 text-align:center;
 }
 
-input{
-width:100%;
-padding:10px;
-margin:10px 0;
-border-radius:5px;
-border:1px solid #ccc;
+/* TITLE */
+h2{
+margin-bottom:20px;
+font-weight:600;
 }
 
-button{
-background:#002147;
-color:white;
-border:none;
-padding:10px;
+/* INPUT */
+input{
 width:100%;
-border-radius:5px;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+outline:none;
+font-size:14px;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:12px;
+margin-top:12px;
+border:none;
+border-radius:8px;
+background:linear-gradient(to right,#00c6ff,#0072ff);
+color:white;
+font-weight:bold;
 cursor:pointer;
-margin-top:5px;
+transition:0.3s;
 }
 
 button:hover{
-background:#004080;
+transform:scale(1.05);
 }
 
+/* DASHBOARD */
 #dashboard{
 display:none;
 }
 
-#adminPanel{
-display:none;
-background:#002147;
-color:white;
-padding:15px;
+/* COURSE GRID */
+.course-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
 margin-top:20px;
-border-radius:5px;
 }
+
+.course-card{
+background:rgba(255,255,255,0.1);
+padding:15px;
+border-radius:12px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.course-card:hover{
+background:#00c6ff;
+color:black;
+}
+
+.logout{
+background:linear-gradient(to right,#ff416c,#ff4b2b);
+margin-top:20px;
+}
+
 </style>
 </head>
 <body>
 
-<!-- LOGIN / REGISTER -->
-<div class="container" id="authBox">
-<h2>Student Login / Register</h2>
+<!-- LOGIN -->
+<div class="card" id="authBox">
+<h2>🎓 GITAM Student Login</h2>
 
 <input type="email" id="email" placeholder="Enter Email">
 <input type="password" id="password" placeholder="Enter Password">
 
-<button onclick="register()">Register</button>
 <button onclick="login()">Login</button>
 </div>
 
 <!-- DASHBOARD -->
-<div class="container" id="dashboard">
-<h2>Welcome to GITAM Courses 🎓</h2>
+<div class="card" id="dashboard">
+<h2>Welcome to GITAM Courses</h2>
 <p id="userEmail"></p>
 
-<h3>Available Courses</h3>
-<ul>
-<li>Mathematics</li>
-<li>Physics</li>
-<li>Computer Science</li>
-<li>Engineering Mechanics</li>
-</ul>
-
-<button onclick="logout()">Logout</button>
-
-<div id="adminPanel">
-<h3>Admin Panel</h3>
-<p>You are logged in as Admin.</p>
+<div class="course-grid">
+<div class="course-card" onclick="openCourse('aiml')">CSE AIML</div>
+<div class="course-card" onclick="openCourse('ds')">CSE DS</div>
+<div class="course-card" onclick="openCourse('core')">CSE CORE</div>
+<div class="course-card" onclick="openCourse('cs')">CSE CS</div>
 </div>
 
+<button class="logout" onclick="logout()">Logout</button>
 </div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+getAuth,
+signInWithEmailAndPassword,
+signOut,
+onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-/* ✅ YOUR FIREBASE CONFIG */
+/* YOUR FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
-  authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
-  projectId: "gitam-exam-preparation-3b83a",
-  storageBucket: "gitam-exam-preparation-3b83a.firebasestorage.app",
-  messagingSenderId: "202789647566",
-  appId: "1:202789647566:web:3b50bf86bca712cb660c9f",
-  measurementId: "G-Z7KR10Q3P2"
+apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
+authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
+projectId: "gitam-exam-preparation-3b83a",
+storageBucket: "gitam-exam-preparation-3b83a.firebasestorage.app",
+messagingSenderId: "202789647566",
+appId: "1:202789647566:web:3b50bf86bca712cb660c9f"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-
-/* REGISTER */
-window.register = async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-
-    await setDoc(doc(db, "users", userCred.user.uid), {
-      email: email,
-      role: "student",
-      createdAt: new Date()
-    });
-
-    alert("Registration Successful!");
-  } catch (error) {
-    alert(error.message);
-  }
-};
 
 /* LOGIN */
-window.login = async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+window.login = async ()=>{
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    alert(error.message);
-  }
-};
+try{
+await signInWithEmailAndPassword(auth,email,password);
+}catch(error){
+alert(error.message);
+}
+}
 
 /* LOGOUT */
-window.logout = () => {
-  signOut(auth);
-};
+window.logout = ()=>signOut(auth);
 
-/* AUTH STATE */
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    document.getElementById("authBox").style.display="none";
-    document.getElementById("dashboard").style.display="block";
-    document.getElementById("userEmail").innerText=user.email;
-
-    const snap = await getDoc(doc(db,"users",user.uid));
-
-    if (snap.exists() && snap.data().role==="admin") {
-      document.getElementById("adminPanel").style.display="block";
-    } else {
-      document.getElementById("adminPanel").style.display="none";
-    }
-
-  } else {
-    document.getElementById("authBox").style.display="block";
-    document.getElementById("dashboard").style.display="none";
-    document.getElementById("adminPanel").style.display="none";
-  }
+/* AUTH CHECK */
+onAuthStateChanged(auth,(user)=>{
+if(user){
+authBox.style.display="none";
+dashboard.style.display="block";
+userEmail.innerText=user.email;
+}else{
+authBox.style.display="block";
+dashboard.style.display="none";
+}
 });
+
+/* OPEN COURSE */
+window.openCourse = (course)=>{
+window.location.href = course + ".html";
+}
 
 </script>
 

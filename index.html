@@ -1,150 +1,95 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>GITAM Exam Preparation</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="module">
 
-<style>
-body{
-margin:0;
-font-family:Arial, sans-serif;
-background:#f4f6f9;
-}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-/* LOGIN SCREEN */
-#loginPage{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-background:#002147;
-color:white;
-flex-direction:column;
-}
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-#loginBox{
-background:white;
-color:black;
-padding:30px;
-border-radius:10px;
-width:300px;
-text-align:center;
-}
+/* 🔥 YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
+  authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
+  projectId: "gitam-exam-preparation-3b83a",
+  storageBucket: "gitam-exam-preparation-3b83a.firebasestorage.app",
+  messagingSenderId: "202789647566",
+  appId: "1:202789647566:web:3b50bf86bca712cb660c9f",
+  measurementId: "G-Z7KR10Q3P2"
+};
 
-input{
-width:100%;
-padding:10px;
-margin:10px 0;
-border-radius:5px;
-border:1px solid #ccc;
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-button{
-background:#004080;
-color:white;
-border:none;
-padding:10px;
-width:100%;
-border-radius:5px;
-cursor:pointer;
-}
+/* ================= REGISTER ================= */
+window.register = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-button:hover{
-background:#002147;
-}
+  try {
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-/* COURSES PAGE */
-#coursesPage{
-display:none;
-}
+    // Store user data in Firestore
+    await setDoc(doc(db, "users", userCred.user.uid), {
+      email: email,
+      role: "student",
+      createdAt: new Date()
+    });
 
-header{
-background:#002147;
-color:white;
-padding:20px;
-text-align:center;
-}
+    alert("Registration Successful!");
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
-.section{
-padding:30px;
-text-align:center;
-}
+/* ================= LOGIN ================= */
+window.login = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-.card{
-background:white;
-padding:20px;
-margin:15px;
-border-radius:10px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-display:inline-block;
-width:250px;
-}
-</style>
-</head>
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
-<body>
+/* ================= LOGOUT ================= */
+window.logout = () => {
+  signOut(auth);
+};
 
-<!-- LOGIN PAGE -->
-<div id="loginPage">
-<h1>GITAM Exam Preparation 🎓</h1>
+/* ================= AUTH STATE ================= */
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    document.getElementById("authBox").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("userEmail").innerText = user.email;
 
-<div id="loginBox">
-<h3>Student Login</h3>
-<input type="text" id="username" placeholder="Enter Username">
-<input type="password" id="password" placeholder="Enter Password">
-<button onclick="login()">Login</button>
-</div>
-</div>
+    // Check role
+    const snap = await getDoc(doc(db, "users", user.uid));
 
-<!-- COURSES PAGE -->
-<div id="coursesPage">
+    if (snap.exists() && snap.data().role === "admin") {
+      document.getElementById("adminPanel").style.display = "block";
+    } else {
+      document.getElementById("adminPanel").style.display = "none";
+    }
 
-<header>
-<h1>Available Courses</h1>
-<button onclick="logout()" style="width:auto;padding:8px 15px;">Logout</button>
-</header>
-
-<div class="section">
-
-<div class="card">
-<h3>Mathematics</h3>
-<p>Important formulas & problems</p>
-</div>
-
-<div class="card">
-<h3>Physics</h3>
-<p>Concepts & previous questions</p>
-</div>
-
-<div class="card">
-<h3>C Programming</h3>
-<p>Programs & lab questions</p>
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-function login(){
-let user=document.getElementById("username").value;
-let pass=document.getElementById("password").value;
-
-if(user==="gitam" && pass==="1234"){
-document.getElementById("loginPage").style.display="none";
-document.getElementById("coursesPage").style.display="block";
-}else{
-alert("Invalid login details");
-}
-}
-
-function logout(){
-document.getElementById("coursesPage").style.display="none";
-document.getElementById("loginPage").style.display="flex";
-}
+  } else {
+    document.getElementById("authBox").style.display = "block";
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("adminPanel").style.display = "none";
+  }
+});
 
 </script>
-
-</body>
-</html>

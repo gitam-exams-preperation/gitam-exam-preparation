@@ -1,3 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GITAM Exam Preparation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f4f6f9;
+}
+
+.container{
+max-width:400px;
+margin:80px auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+background:#002147;
+color:white;
+border:none;
+padding:10px;
+width:100%;
+border-radius:5px;
+cursor:pointer;
+margin-top:5px;
+}
+
+button:hover{
+background:#004080;
+}
+
+#dashboard{
+display:none;
+}
+
+#adminPanel{
+display:none;
+background:#002147;
+color:white;
+padding:15px;
+margin-top:20px;
+border-radius:5px;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN / REGISTER -->
+<div class="container" id="authBox">
+<h2>Student Login / Register</h2>
+
+<input type="email" id="email" placeholder="Enter Email">
+<input type="password" id="password" placeholder="Enter Password">
+
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container" id="dashboard">
+<h2>Welcome to GITAM Courses 🎓</h2>
+<p id="userEmail"></p>
+
+<h3>Available Courses</h3>
+<ul>
+<li>Mathematics</li>
+<li>Physics</li>
+<li>Computer Science</li>
+<li>Engineering Mechanics</li>
+</ul>
+
+<button onclick="logout()">Logout</button>
+
+<div id="adminPanel">
+<h3>Admin Panel</h3>
+<p>You are logged in as Admin.</p>
+</div>
+
+</div>
+
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -16,7 +111,7 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-/* 🔥 YOUR FIREBASE CONFIG */
+/* ✅ YOUR FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
   authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
@@ -31,7 +126,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ================= REGISTER ================= */
+/* REGISTER */
 window.register = async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -39,7 +134,6 @@ window.register = async () => {
   try {
     const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Store user data in Firestore
     await setDoc(doc(db, "users", userCred.user.uid), {
       email: email,
       role: "student",
@@ -52,7 +146,7 @@ window.register = async () => {
   }
 };
 
-/* ================= LOGIN ================= */
+/* LOGIN */
 window.login = async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -64,32 +158,34 @@ window.login = async () => {
   }
 };
 
-/* ================= LOGOUT ================= */
+/* LOGOUT */
 window.logout = () => {
   signOut(auth);
 };
 
-/* ================= AUTH STATE ================= */
+/* AUTH STATE */
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    document.getElementById("authBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    document.getElementById("userEmail").innerText = user.email;
+    document.getElementById("authBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    document.getElementById("userEmail").innerText=user.email;
 
-    // Check role
-    const snap = await getDoc(doc(db, "users", user.uid));
+    const snap = await getDoc(doc(db,"users",user.uid));
 
-    if (snap.exists() && snap.data().role === "admin") {
-      document.getElementById("adminPanel").style.display = "block";
+    if (snap.exists() && snap.data().role==="admin") {
+      document.getElementById("adminPanel").style.display="block";
     } else {
-      document.getElementById("adminPanel").style.display = "none";
+      document.getElementById("adminPanel").style.display="none";
     }
 
   } else {
-    document.getElementById("authBox").style.display = "block";
-    document.getElementById("dashboard").style.display = "none";
-    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("authBox").style.display="block";
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("adminPanel").style.display="none";
   }
 });
 
 </script>
+
+</body>
+</html>

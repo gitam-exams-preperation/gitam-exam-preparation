@@ -11,29 +11,58 @@ font-family:Arial, sans-serif;
 background:#f4f6f9;
 }
 
+/* LOGIN SCREEN */
+#loginPage{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#002147;
+color:white;
+flex-direction:column;
+}
+
+#loginBox{
+background:white;
+color:black;
+padding:30px;
+border-radius:10px;
+width:300px;
+text-align:center;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+background:#004080;
+color:white;
+border:none;
+padding:10px;
+width:100%;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#002147;
+}
+
+/* COURSES PAGE */
+#coursesPage{
+display:none;
+}
+
 header{
 background:#002147;
 color:white;
 padding:20px;
 text-align:center;
-}
-
-nav{
-background:#004080;
-display:flex;
-justify-content:center;
-flex-wrap:wrap;
-}
-
-nav a{
-color:white;
-padding:14px 20px;
-text-decoration:none;
-font-weight:bold;
-}
-
-nav a:hover{
-background:#002147;
 }
 
 .section{
@@ -50,71 +79,72 @@ box-shadow:0 4px 10px rgba(0,0,0,0.1);
 display:inline-block;
 width:250px;
 }
-
-button{
-background:#004080;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#002147;
-}
-
-footer{
-background:#002147;
-color:white;
-text-align:center;
-padding:15px;
-margin-top:30px;
-}
 </style>
 </head>
 
 <body>
 
-<header>
+<!-- LOGIN PAGE -->
+<div id="loginPage">
 <h1>GITAM Exam Preparation 🎓</h1>
-<p>Study Smart. Score High.</p>
+
+<div id="loginBox">
+<h3>Student Login</h3>
+<input type="text" id="username" placeholder="Enter Username">
+<input type="password" id="password" placeholder="Enter Password">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<!-- COURSES PAGE -->
+<div id="coursesPage">
+
+<header>
+<h1>Available Courses</h1>
+<button onclick="logout()" style="width:auto;padding:8px 15px;">Logout</button>
 </header>
 
-<nav>
-<a href="#">Home</a>
-<a href="#">Previous Papers</a>
-<a href="#">Important Questions</a>
-<a href="#">Notes</a>
-<a href="#">Contact</a>
-</nav>
-
 <div class="section">
-<h2>Subjects</h2>
 
 <div class="card">
 <h3>Mathematics</h3>
 <p>Important formulas & problems</p>
-<button>View</button>
 </div>
 
 <div class="card">
 <h3>Physics</h3>
 <p>Concepts & previous questions</p>
-<button>View</button>
 </div>
 
 <div class="card">
 <h3>C Programming</h3>
 <p>Programs & lab questions</p>
-<button>View</button>
 </div>
 
 </div>
 
-<footer>
-© 2026 GITAM Exam Preparation | Made by You
-</footer>
+</div>
+
+<script>
+
+function login(){
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
+
+if(user==="gitam" && pass==="1234"){
+document.getElementById("loginPage").style.display="none";
+document.getElementById("coursesPage").style.display="block";
+}else{
+alert("Invalid login details");
+}
+}
+
+function logout(){
+document.getElementById("coursesPage").style.display="none";
+document.getElementById("loginPage").style.display="flex";
+}
+
+</script>
 
 </body>
 </html>

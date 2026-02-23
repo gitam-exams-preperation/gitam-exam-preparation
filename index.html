@@ -23,7 +23,7 @@ color:white;
 
 .card{
 width:380px;
-height:600px;
+height:620px;
 background:rgba(255,255,255,0.08);
 border-radius:25px;
 backdrop-filter:blur(15px);
@@ -33,7 +33,6 @@ flex-direction:column;
 overflow:hidden;
 }
 
-/* CONTENT */
 .content{
 flex:1;
 padding:25px;
@@ -51,7 +50,7 @@ margin-top:20px;
 
 .course{
 background:rgba(255,255,255,0.15);
-padding:20px;
+padding:18px;
 border-radius:15px;
 cursor:pointer;
 transition:0.3s;
@@ -64,18 +63,26 @@ color:black;
 
 /* PROFILE */
 .profile-info{
-margin-top:20px;
+margin-top:15px;
 text-align:left;
 }
 
 .profile-info p{
-margin:8px 0;
+margin:6px 0;
+}
+
+input{
+width:100%;
+padding:8px;
+margin-top:10px;
+border:none;
+border-radius:8px;
 }
 
 button{
 width:100%;
 padding:10px;
-margin-top:12px;
+margin-top:10px;
 border:none;
 border-radius:8px;
 font-weight:bold;
@@ -85,6 +92,15 @@ cursor:pointer;
 .logout{
 background:#ff416c;
 color:white;
+}
+
+.admin-badge{
+margin-top:10px;
+background:#00c6ff;
+padding:5px;
+border-radius:8px;
+color:black;
+font-weight:bold;
 }
 
 /* NAV */
@@ -101,7 +117,6 @@ cursor:pointer;
 font-weight:bold;
 }
 
-/* HIDE */
 #profile{
 display:none;
 }
@@ -115,6 +130,8 @@ display:none;
 <div class="content" id="home">
 <h2>GITAM Courses</h2>
 <p id="userEmail"></p>
+
+<div id="adminBadge"></div>
 
 <div class="course-grid">
 <div class="course" onclick="go('aiml.html')">CSE AIML</div>
@@ -134,6 +151,12 @@ display:none;
 <p id="profileEmail"></p>
 </div>
 
+<input type="password" id="newPassword" placeholder="New Password">
+<button onclick="changePassword()">Change Password</button>
+
+<input type="file" id="photoInput">
+<button onclick="uploadPhoto()">Upload Profile Photo</button>
+
 <button class="logout" onclick="logout()">Logout</button>
 </div>
 
@@ -151,37 +174,53 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebas
 import { 
 getAuth,
 onAuthStateChanged,
-signOut
+signOut,
+updatePassword
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+getDoc
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+import {
+getStorage,
+ref,
+uploadBytes,
+getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-storage.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyCACHqvv1EB6-Fd_xYhId488EI8SSSjHoQ",
 authDomain: "gitam-exam-preparation-3b83a.firebaseapp.com",
 projectId: "gitam-exam-preparation-3b83a",
+storageBucket: "gitam-exam-preparation-3b83a.firebasestorage.app",
 appId: "1:202789647566:web:3b50bf86bca712cb660c9f"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-onAuthStateChanged(auth,user=>{
+onAuthStateChanged(auth, async (user)=>{
 if(user){
 userEmail.innerText=user.email;
 profileEmail.innerText=user.email;
+
+/* ADMIN CHECK */
+const snap = await getDoc(doc(db,"users",user.uid));
+if(snap.exists() && snap.data().role==="admin"){
+adminBadge.innerHTML='<div class="admin-badge">ADMIN</div>';
+}
+
 }else{
 window.location.href="login.html";
 }
 });
 
-window.logout=()=>{
-signOut(auth);
-window.location.href="login.html";
-}
-
-window.go=(page)=>{
-window.location.href=page;
-}
-
+/* NAVIGATION */
 window.showHome=()=>{
 home.style.display="block";
 profile.style.display="none";
@@ -190,6 +229,38 @@ profile.style.display="none";
 window.showProfile=()=>{
 home.style.display="none";
 profile.style.display="block";
+}
+
+/* LOGOUT */
+window.logout=()=>{
+signOut(auth);
+window.location.href="login.html";
+}
+
+/* OPEN COURSE */
+window.go=(page)=>{
+window.location.href=page;
+}
+
+/* CHANGE PASSWORD */
+window.changePassword=async ()=>{
+try{
+await updatePassword(auth.currentUser,newPassword.value);
+alert("Password Updated Successfully");
+}catch(e){
+alert(e.message);
+}
+}
+
+/* UPLOAD PHOTO */
+window.uploadPhoto=async ()=>{
+const file=photoInput.files[0];
+if(!file){ alert("Select a file first"); return; }
+
+const storageRef=ref(storage,'profiles/'+auth.currentUser.uid);
+await uploadBytes(storageRef,file);
+const url=await getDownloadURL(storageRef);
+alert("Profile Photo Uploaded");
 }
 
 </script>
